@@ -1,0 +1,118 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile Resources",
+            "type": "shell",
+            "command": "windres.exe",
+            "args": [
+                "-i", "resource.rc",
+                "-o", "resource.res",
+                "-O", "coff"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "PATH": "C:\\MinGW\\bin;${env:PATH}"
+                }
+            }
+        },
+        {
+            "label": "Build FlappyCube (Debug)",
+            "type": "shell",
+            "command": "g++.exe",
+            "args": [
+                "-g",
+                "-O3",
+                "-DFREEGLUT_STATIC",
+                "game.cpp",
+                "boosts/coin.cpp",
+                "boosts/heart.cpp",
+                "utils/draw.cpp",
+                "utils/gui.cpp",
+                "utils/image.cpp",
+                "utils/ModelOBJ.cpp",
+                "resource.res",
+                "-o", "bin/Debug/FlappyCube.exe",
+                "-I", "${workspaceFolder}",
+                "-I", "${workspaceFolder}/boosts",
+                "-I", "${workspaceFolder}/utils",
+                "-I", "C:/MinGW/include",
+                "-L", "C:/MinGW/lib",
+                "-lfreeglut_static",
+                "-lopengl32",
+                "-lglu32",
+                "-lwinmm",
+                "-lgdi32",
+                "-static-libgcc",
+                "-static-libstdc++",
+                "-static"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "PATH": "C:\\MinGW\\bin;${env:PATH}"
+                },
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": ["/d", "/c"]
+                }
+            },
+            "dependsOn": ["Compile Resources"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Build FlappyCube (Release)",
+            "type": "shell",
+            "command": "g++.exe",
+            "args": [
+                "-O3",
+                "-s",
+                "-mwindows",
+                "-DFREEGLUT_STATIC",
+                "game.cpp",
+                "boosts/coin.cpp",
+                "boosts/heart.cpp",
+                "utils/draw.cpp",
+                "utils/gui.cpp",
+                "utils/image.cpp",
+                "utils/ModelOBJ.cpp",
+                "resource.res",
+                "-o", "bin/Release/FlappyCube.exe",
+                "-I", "${workspaceFolder}",
+                "-I", "${workspaceFolder}/boosts",
+                "-I", "${workspaceFolder}/utils",
+                "-I", "C:/MinGW/include",
+                "-L", "C:/MinGW/lib",
+                "-lfreeglut_static",
+                "-lopengl32",
+                "-lglu32",
+                "-lwinmm",
+                "-lgdi32",
+                "-static-libgcc",
+                "-static-libstdc++",
+                "-static"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "PATH": "C:\\MinGW\\bin;${env:PATH}"
+                },
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": ["/d", "/c"]
+                }
+            },
+            "dependsOn": ["Compile Resources"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        }
+    ]
+}

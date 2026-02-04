@@ -1,0 +1,11 @@
+#include <windows.h>
+
+MAINICON  ICON  "FlappyCube.ico"
+
+#define IDR_PLAYER_MODEL 101
+IDR_PLAYER_MODEL OBJFILE "resources/cube_character.obj"
+
+#define IDR_HEART_MODEL 102
+IDR_HEART_MODEL OBJFILE "resources/heart.obj"
+
+201 RCDATA "resources/MenuBackground.png"

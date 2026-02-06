@@ -1,32 +1,12 @@
-#include "Coin.h"
+#include "coin.h"
 #include <GL/freeglut.h>
-#include <cmath>
 
-// already have drawBox(), so just declare it
 void drawBox(float width, float height, float depth);
 
-Coin::Coin(float startX, float startY)
-    : x(startX), y(startY), rotation(0.0f), collected(false) {}
-
-void Coin::update(float worldSpeed, float playerX, float playerY) {
-    if (collected) return;
-
-    // Move with world
-    x -= worldSpeed;
-    rotation += 5.0f;
-
-    // Collision check
-    float dx = x - playerX;
-    float dy = y - playerY;
-    float distSq = dx * dx + dy * dy;
-
-    if (distSq < 0.36f) {
-        collected = true;
-    }
-}
+Coin::Coin(float startX, float startY) : Boost(startX, startY) {}
 
 void Coin::draw() const {
-    if (collected) return;
+    if (collected) return; // Accessing protected 'collected' from Boost
 
     glPushMatrix();
     glTranslatef(x, y, 0.0f);
@@ -41,12 +21,4 @@ void Coin::draw() const {
     glEnable(GL_LIGHTING);
 
     glPopMatrix();
-}
-
-bool Coin::isCollected() const {
-    return collected;
-}
-
-float Coin::getX() const {
-    return x;
 }

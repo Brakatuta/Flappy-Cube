@@ -14,6 +14,9 @@
 #include "utils/gui.h"
 #include "utils/ModelOBJ.h"
 #include "utils/image.h"
+#include "world/pipe.h"
+#include "world/mountain.h"
+#include "world/cloud.h"
 #include "boosts/coin.h"
 #include "boosts/heart.h"
 #include "boosts/star.h"
@@ -33,8 +36,7 @@ const float cubeSize = 0.4f;
 vector<Cloud> clouds;
 float cloudSpawnTimer = 0.0f;
 
-vector<Mountain> activeMountains;
-float mountainOffset = 0.0f; // To handle infinite scrolling
+vector<Mountain> mountains;
 
 vector<Pipe> pipes;
 float spawnTimer = 0.0f;
@@ -108,26 +110,26 @@ void resetGame() {
     activeCoins.clear();
     activeStars.clear();
     lastGapY = 0.0f;
-    pipes.push_back({ 6.0f, 0.0f, false });
+    pipes.push_back(Pipe(6.0f, 0.0f));
     spawnTimer = 0.0f;
     score = 0;
     currentSpeed = 0.06f;
     currentGap = 0.9f;
     spawnInterval = 3.5f;
 
-    activeMountains.clear();
+    mountains.clear();
 
     // Pre-spawn mountains across the screen initially with the NEW struct format
     for(float i = -30.0f; i < 25.0f; i += 8.0f) {
         // Layer 1: Snowy (x, y, z, w, h, r, g, b, speed)
         float h1 = 15.0f;
-        activeMountains.push_back({ i, -14.0f + (h1/2), -45.0f, h1, h1 * 1.5f, 0.8f, 0.85f, 0.9f, 0.05f });
+        mountains.push_back(Mountain(i, -14.0f + (h1/2), -45.0f, h1, h1 * 1.5f, 0.8f, 0.85f, 0.9f, 0.05f));
         // Layer 2: Grey
         float h2 = 10.0f;
-        activeMountains.push_back({ i + 4.0f, -9.0f + (h2/2), -30.0f, h2, h2 * 1.3f, 0.4f, 0.42f, 0.45f, 0.12f });
+        mountains.push_back(Mountain(i + 4.0f, -9.0f + (h2/2), -30.0f, h2, h2 * 1.3f, 0.4f, 0.42f, 0.45f, 0.12f));
         // Layer 3: Green
         float h3 = 6.0f;
-        activeMountains.push_back({ i + 2.0f, -8.0f + (h3/2), -15.0f, h3, h3 * 1.2f, 0.15f, 0.35f, 0.15f, 0.25f });
+        mountains.push_back(Mountain(i + 2.0f, -8.0f + (h3/2), -15.0f, h3, h3 * 1.2f, 0.15f, 0.35f, 0.15f, 0.25f));
     }
 
     currentState = PLAYING;
@@ -150,20 +152,22 @@ void display() {
         glRotatef(-10, 0, 1, 0);
 
         // Draw Mountains
-        for (auto& m : activeMountains) {
-            drawMountain(m);
+        for (auto& m : mountains) {
+            m.draw();
         }
 
         // Draw Volumetric Clouds
         for (auto& c : clouds) {
-            drawCloud(c);
+            c.draw();
         }
 
         // Ground
         drawGround(floorOffset);
 
         // Pipes
-        drawPipes(pipes, currentGap);
+        for (const auto& p : pipes) {
+            p.draw(currentGap);
+        }
 
         // Draw Coins
         for (const auto& c : activeCoins) {
@@ -242,33 +246,42 @@ void updateMountains() {
         // Distant Snowy Peaks
         if (layer == 0) {
             float h = 11.0f + (rand() % 5);
-            activeMountains.push_back({ 25.0f, -14.0f + (h/2), -45.0f, h, h * 1.5f, 0.8f, 0.85f, 0.9f, 0.05f });
+            mountains.push_back({ 25.0f, -14.0f + (h/2), -45.0f, h, h * 1.5f, 0.8f, 0.85f, 0.9f, 0.05f });
         }
 
         // Mid-range Grey
         else if (layer == 1) {
             float h = 7.0f + (rand() % 3);
-            activeMountains.push_back({ 25.0f, -9.0f + (h/2), -30.0f, h, h * 1.3f, 0.4f, 0.42f, 0.45f, 0.12f });
+            mountains.push_back({ 25.0f, -9.0f + (h/2), -30.0f, h, h * 1.3f, 0.4f, 0.42f, 0.45f, 0.12f });
         }
 
         // Green Foothills
         if (rand() % 2 == 0) {
             float h = 4.0f + (rand() % 3);
-            activeMountains.push_back({ 25.0f, -8.0f + (h/2), -15.0f, h, h * 1.2f, 0.15f, 0.35f, 0.15f, 0.25f });
+            mountains.push_back({ 25.0f, -8.0f + (h/2), -15.0f, h, h * 1.2f, 0.15f, 0.35f, 0.15f, 0.25f });
         }
 
         mountainSpawnTimer = 0.0f;
     }
 
-    // Move and delete mountains
-    for (auto it = activeMountains.begin(); it != activeMountains.end(); ) {
-        it->x -= currentSpeed * it->speedMult;
-        if (it->x < -30.0f) it = activeMountains.erase(it);
-        else ++it;
+    for (auto it = mountains.begin(); it != mountains.end(); ) {
+        if (it->update(currentSpeed)) { 
+            it = mountains.erase(it);
+        } else {
+            ++it;
+        }
     }
 }
 
 void updateClouds() {
+    for (auto it = clouds.begin(); it != clouds.end(); ) {
+        if (it->update(currentSpeed)) { 
+            it = clouds.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
     cloudSpawnTimer += 0.016f;
     if (cloudSpawnTimer >= 1.5f) {
         float cz = -12.0f - (rand() % 80 / 10.0f); // Depth variance
@@ -277,14 +290,8 @@ void updateClouds() {
         float ch = 0.6f + (rand() % 10 / 10.0f);   // Random Height
         float speed = 0.15f + (rand() % 20 / 100.0f); // Variable parallax
 
-        clouds.push_back({ 18.0f, cy, cz, cw, ch, 0.8f, speed });
+        clouds.push_back(Cloud(18.0f, cy, cz, cw, ch, 0.8f, speed));
         cloudSpawnTimer = 0.0f;
-    }
-
-    for (auto it = clouds.begin(); it != clouds.end(); ) {
-        it->x -= currentSpeed * it->speedMult;
-        if (it->x < -20.0f) it = clouds.erase(it);
-        else ++it;
     }
 }
 
@@ -311,7 +318,7 @@ void update(int value) {
 
         if (floorOffset < -2.5f) floorOffset = 0.0f;
 
-        // Pipe Spawning
+        // Pipe and Boost Spawning
         spawnTimer += currentSpeed;
         if (spawnTimer >= spawnInterval) {
             float maxDiff = 1.0f;
@@ -321,7 +328,7 @@ void update(int value) {
             if (newGapY > 1.5f) newGapY = 1.5f;
             if (newGapY < -1.0f) newGapY = -1.0f;
 
-            pipes.push_back({ 8.0f, newGapY, false });
+            pipes.push_back(Pipe(8.0f, newGapY));
 
             if (superModeTimer > 0) {
                 activeCoins.emplace_back(8.0f, newGapY - 0.5f);
@@ -352,27 +359,30 @@ void update(int value) {
 
         // Check for player collisions
         for (auto it = pipes.begin(); it != pipes.end(); ) {
-            it->x -= currentSpeed;
+            bool offScreen = it->update(currentSpeed);
 
-            // check if invincable
-            if (invincibilityTimer <= 0.0f && checkCollision(it->x, cubeY, it->gapY)) {
+            if (invincibilityTimer <= 0.0f && it->checkCollision(cubeY, cubeSize, currentGap)) {
                 if (extraLives > 0) {
                     extraLives--;
-                    currentSpeed = 0.06f; // Reset speed back to start
+                    currentSpeed = 0.06f; 
                     velocity = jumpForce;
-                    invincibilityTimer = 2.0f; // Give 2 seconds of safety
+                    invincibilityTimer = 2.0f;
                 } else {
                     currentState = GAMEOVER;
                 }
             }
 
-            if (!it->passed && it->x < -1.5f) {
-                it->passed = true;
+            if (it->hasBeenPassed(-1.5f)) {
+                it->setPassed(true);
                 score++;
                 currentSpeed += 0.00025f;
             }
-            if (it->x < -10.0f) it = pipes.erase(it);
-            else ++it;
+
+            if (offScreen) {
+                it = pipes.erase(it);
+            } else {
+                ++it;
+            }
         }
 
         if (cubeY < -2.8f || cubeY > 3.8f) currentState = GAMEOVER;

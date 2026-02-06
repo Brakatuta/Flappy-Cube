@@ -20,6 +20,9 @@
 // =====================
 //  Project Includes
 // =====================
+#include "world/pipe.h"
+#include "world/mountain.h"
+#include "world/cloud.h"
 #include "boosts/coin.h"
 #include "boosts/heart.h"
 #include "boosts/star.h"
@@ -33,32 +36,10 @@ enum State { MENU, PLAYING, GAMEOVER, PAUSED };
 extern State currentState;
 
 // =====================
-//  Data Structures
-// =====================
-struct Cloud {
-    float x, y, z;
-    float w, h, d;
-    float speedMult;
-};
-
-struct Mountain {
-    float x, y, z;
-    float w, h;
-    float r, g, b;
-    float speedMult;
-};
-
-struct Pipe {
-    float x;
-    float gapY;
-    bool passed;
-};
-
-// =====================
 //  Globals
 // =====================
 extern vector<Cloud> clouds;
-extern vector<Mountain> activeMountains;
+extern vector<Mountain> mountains;
 extern vector<Pipe> pipes;
 
 extern vector<Coin> activeCoins;

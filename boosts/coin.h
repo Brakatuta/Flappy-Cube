@@ -1,23 +1,12 @@
 #ifndef COIN_H
 #define COIN_H
 
-#pragma once
+#include "Boost.h"
 
-
-class Coin {
+class Coin : public Boost {
 public:
     Coin(float startX, float startY);
-
-    void update(float worldSpeed, float playerX, float playerY);
-    void draw() const;
-
-    bool isCollected() const;
-    float getX() const;
-
-private:
-    float x, y;
-    float rotation;
-    bool collected;
+    void draw() const override; // Overriding the base draw
 };
 
 #endif

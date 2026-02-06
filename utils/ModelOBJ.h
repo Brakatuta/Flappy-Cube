@@ -19,6 +19,8 @@ public:
     float scaleValue = 1.0f;
     float rotX = 0.0f, rotY = 0.0f, rotZ = 0.0f;
 
+    GLuint displayList = 0; 
+
     void setScale(float s) { scaleValue = s; }
     void setRotation(float x, float y, float z) { rotX = x; rotY = y; rotZ = z; }
 
@@ -26,6 +28,10 @@ public:
     bool load(const char* filename);
     bool loadFromResource(int resourceID);
     bool parseStream(std::istream& stream);
+    
+    // method to bake the geometry into GPU memory
+    void compile(); 
+    
     void draw();
 };
 

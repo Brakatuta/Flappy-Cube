@@ -71,8 +71,9 @@
             "type": "shell",
             "command": "g++.exe",
             "args": [
-                "-O3",
+                "-Os",
                 "-s",
+                "-Wl,--strip-all",
                 "-mwindows",
                 "-DFREEGLUT_STATIC",
                 "game.cpp",

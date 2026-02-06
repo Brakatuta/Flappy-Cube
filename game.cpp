@@ -189,27 +189,20 @@ void display() {
             glTranslatef(-1.5f, cubeY, 0);
             glRotatef(velocity * 500.0f, 0, 0, 1);
 
-            bool blink = (int)(invincibilityTimer * 15) % 2 == 0;
+            bool blink = ((int)(invincibilityTimer / 0.1f) % 2 == 0);
 
-            if (superModeTimer > 0) {
-                float t = glutGet(GLUT_ELAPSED_TIME) * 0.005f;
-                float r = 0.5f + 0.5f * sin(t);
-                float g = 0.5f + 0.5f * sin(t + 2.0f);
-                float b = 0.5f + 0.5f * sin(t + 4.0f);
-                glColor3f(r, g, b);
-            }
-            else if (invincibilityTimer > 0 && !blink) {
-                // skip drawing for blink
-                glPopMatrix();
-                return;
-            }
-            else {
-                glColor3f(92/255.0f, 62/255.0f, 14/255.0f);
-            }
+            if (!(invincibilityTimer > 0 && !blink)) {
+                if (superModeTimer > 0) {
+                    float t = glutGet(GLUT_ELAPSED_TIME) * 0.005f;
+                    glColor3f(0.5f + 0.5f * sin(t), 0.5f + 0.5f * sin(t + 2.0f), 0.5f + 0.5f * sin(t + 4.0f));
+                } else {
+                    glColor3f(92/255.0f, 62/255.0f, 14/255.0f);
+                }
 
-            playerModel.setRotation(0, 90, 0);
-            playerModel.setScale(0.225f);
-            playerModel.draw();
+                playerModel.setRotation(0, 90, 0);
+                playerModel.setScale(0.225f);
+                playerModel.draw();
+            }
         glPopMatrix();
     }
 
@@ -501,6 +494,10 @@ int main(int argc, char** argv) {
     glutTimerFunc(16, update, 0);
 
     loadHighScore();
+
+    playerModel.compile();
+    heartModel.compile();
+    starModel.compile();
 
     glutMainLoop();
 

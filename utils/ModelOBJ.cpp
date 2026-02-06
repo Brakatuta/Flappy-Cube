@@ -45,16 +45,6 @@ bool ModelOBJ::parseStream(istream& stream) {
     return !vertices.empty();
 }
 
-// file loader, uses parseStream
-bool ModelOBJ::load(const char* filename) {
-    ifstream file(filename);
-    if (!file.is_open()) {
-        cerr << "Error: Could not open " << filename << endl;
-        return false;
-    }
-    return parseStream(file);
-}
-
 // Resource loader for baking into EXE
 bool ModelOBJ::loadFromResource(int resourceID) {
     HRSRC hRes = FindResource(NULL, MAKEINTRESOURCE(resourceID), "OBJFILE");
@@ -73,26 +63,48 @@ bool ModelOBJ::loadFromResource(int resourceID) {
     return parseStream(ss);
 }
 
+void ModelOBJ::compile() {
+    if (vertices.empty()) {
+        cout << "Compile failed: No vertices loaded!" << endl;
+        return;
+    }
+
+    displayList = glGenLists(1);
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) {
+        cout << "OpenGL Error during glGenLists: " << err << endl;
+    }
+
+    glNewList(displayList, GL_COMPILE);
+    
+    glBegin(GL_TRIANGLES);
+    for (auto& f : faces) {
+        for (int i = 0; i < 3; i++) {
+            if (!normals.empty()) {
+                glNormal3f(normals[f.n[i]].x, normals[f.n[i]].y, normals[f.n[i]].z);
+            }
+            glVertex3f(vertices[f.v[i]].x, vertices[f.v[i]].y, vertices[f.v[i]].z);
+        }
+    }
+    glEnd();
+    
+    glEndList();
+    
+    if (!glIsList(displayList)) {
+        cout << "Failed to create display list!" << endl;
+    }
+}
+
 void ModelOBJ::draw() {
     glPushMatrix();
 
+    // Apply transformations
     glRotatef(rotX, 1.0f, 0.0f, 0.0f);
     glRotatef(rotY, 0.0f, 1.0f, 0.0f);
     glRotatef(rotZ, 0.0f, 0.0f, 1.0f);
     glScalef(scaleValue, scaleValue, scaleValue);
 
-    glBegin(GL_TRIANGLES);
-    for (auto& f : faces) {
-        for (int i = 0; i < 3; i++) {
-            if (!normals.empty() && f.n[i] < normals.size()) {
-                glNormal3f(normals[f.n[i]].x, normals[f.n[i]].y, normals[f.n[i]].z);
-            }
-            if (f.v[i] < vertices.size()) {
-                glVertex3f(vertices[f.v[i]].x, vertices[f.v[i]].y, vertices[f.v[i]].z);
-            }
-        }
-    }
-    glEnd();
+    glCallList(displayList);
 
     glPopMatrix();
 }

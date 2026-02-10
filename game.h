@@ -11,7 +11,6 @@
 #include <GL/glext.h>
 
 #include <fstream>
-#include <iostream>
 #include <vector>
 #include <memory>
 #include <string>

@@ -3,7 +3,6 @@
 #include <GL/glext.h>
 
 #include <fstream>
-#include <iostream>
 #include <vector>
 #include <memory>
 #include <string>
@@ -408,12 +407,14 @@ void initLighting() {
     glEnable(GL_LIGHTING);   // Master switch for lights
     glEnable(GL_LIGHT0);    // Turn on the first light source
     glEnable(GL_COLOR_MATERIAL); // Allows glColor3f to work with lighting
-    glEnable(GL_FOG); // Enable Fog
-
-    float fogColor[] = { 0.5f, 0.7f, 1.0f, 1.0f }; // Same as glClearColor
+    glEnable(GL_FOG);
+    float fogColor[] = { 0.5f, 0.7f, 1.0f, 1.0f };
     glFogfv(GL_FOG_COLOR, fogColor);
-    glFogi(GL_FOG_MODE, GL_EXP2);
-    glFogf(GL_FOG_DENSITY, 0.02f); // Adjust this to make it more/less misty
+
+    // Linear fog from 10 units to 50 units
+    glFogi(GL_FOG_MODE, GL_LINEAR);
+    glFogf(GL_FOG_START, 10.0f);
+    glFogf(GL_FOG_END, 50.0f);
 
     // Set light position (Top-Right-Front)
     float lightPos[] = { 5.0f, 10.0f, 5.0f, 1.0f };
@@ -438,19 +439,34 @@ void keyboard(unsigned char key, int x, int y) {
     }
 }
 
+void myPerspective(float fovy, float aspect, float zNear, float zFar)
+{
+    float f = 1.0f / tanf(fovy * 0.5f * 3.14159265f / 180.0f);
+    float m[16] = {
+        f / aspect, 0, 0, 0,
+        0, f, 0, 0,
+        0, 0, (zFar+zNear)/(zNear-zFar), -1,
+        0, 0, (2*zFar*zNear)/(zNear-zFar), 0
+    };
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glMultMatrixf(m);
+    glMatrixMode(GL_MODELVIEW);
+}
+
 int main(int argc, char** argv) {
     if (!playerModel.loadFromResource(101)) {
-        cout << "Failed to load model 101!" << endl;
+        printf("Failed to load model 101!\n");
     }
 
     if (!heartModel.loadFromResource(102)) {
-        cout << "Failed to load model 102!" << endl;
+        printf("Failed to load model 102!\n");
     } else {
         Heart::setModel(&heartModel);
     }
 
     if (!starModel.loadFromResource(103)) {
-        cout << "Failed to load model 103!" << endl;
+        printf("Failed to load model 103!\n");
     } else {
         Star::setModel(&starModel);
     }
@@ -479,13 +495,13 @@ int main(int argc, char** argv) {
     glutReshapeFunc([](int w, int h) {
         glViewport(0, 0, w, h);
         glMatrixMode(GL_PROJECTION); glLoadIdentity();
-        gluPerspective(45.0, (float)w/h, 1.0, 100.0);
+        myPerspective(45.0f, (float)w/h, 1.0f, 100.0f);
         glMatrixMode(GL_MODELVIEW);
     });
 
     menuBackground = loadPNGFromResource(201);
     if (menuBackground == 0) {
-        cout << "Failed to load texture! Check resource ID 201." << endl;
+        fprintf(stderr, "Failed to load texture! Check resource ID 201.\n");
     }
 
     initLighting();

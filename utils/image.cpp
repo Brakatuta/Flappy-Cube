@@ -3,7 +3,6 @@
 #include <GL/glext.h>
 #include <fstream>
 #include <sstream>
-#include <iostream>
 
 #include <windows.h>
 #include <GL/freeglut.h>

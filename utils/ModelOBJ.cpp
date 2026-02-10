@@ -1,7 +1,6 @@
 #include "ModelOBJ.h"
 #include <fstream>
 #include <sstream>
-#include <iostream>
 #include <windows.h>
 
 using namespace std;
@@ -65,14 +64,14 @@ bool ModelOBJ::loadFromResource(int resourceID) {
 
 void ModelOBJ::compile() {
     if (vertices.empty()) {
-        cout << "Compile failed: No vertices loaded!" << endl;
+        printf("Compile failed: No vertices loaded!\n");
         return;
     }
 
     displayList = glGenLists(1);
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
-        cout << "OpenGL Error during glGenLists: " << err << endl;
+        printf("OpenGL Error during glGenLists: %d\n", err);
     }
 
     glNewList(displayList, GL_COMPILE);
@@ -91,7 +90,7 @@ void ModelOBJ::compile() {
     glEndList();
     
     if (!glIsList(displayList)) {
-        cout << "Failed to create display list!" << endl;
+        printf("Failed to create display list!\n");
     }
 }
 

@@ -8,6 +8,15 @@
 using namespace std;
 
 
+void myOrtho2D(float left, float right, float bottom, float top)
+{
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(left, right, bottom, top, -1.0f, 1.0f);
+
+    glMatrixMode(GL_MODELVIEW);
+}
+
 void drawUIPanel(float x, float y, float w, float h) {
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST); // Crucial: Stop 3D objects from hiding the UI
@@ -54,7 +63,7 @@ void drawMenuBackground() {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    gluOrtho2D(0, 1280, 0, 720); // Your window resolution
+    myOrtho2D(0, 1280, 0, 720); // Your window resolution
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -84,7 +93,7 @@ void drawUI() {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    gluOrtho2D(0, 800, 0, 600);
+    myOrtho2D(0, 800, 0, 600);
 
     // Switch to ModelView and RESET IT
     glMatrixMode(GL_MODELVIEW);

@@ -1,7 +1,7 @@
 #ifndef COIN_H
 #define COIN_H
 
-#include "Boost.h"
+#include "boost.h"
 
 class Coin : public Boost {
 public:

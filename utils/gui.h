@@ -4,7 +4,6 @@
 #pragma once
 
 void drawUIPanel(float x, float y, float w, float h);
-void drawMenuBackground();
 void drawUI();
 
 #endif

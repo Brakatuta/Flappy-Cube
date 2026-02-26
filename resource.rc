@@ -1,14 +1,13 @@
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 MAINICON  ICON  "FlappyCube.ico"
 
 #define IDR_PLAYER_MODEL 101
-IDR_PLAYER_MODEL OBJFILE "resources/cube_character.obj"
+IDR_PLAYER_MODEL OBJFILE "resources/cube_character.fcm"
 
 #define IDR_HEART_MODEL 102
-IDR_HEART_MODEL OBJFILE "resources/heart.obj"
+IDR_HEART_MODEL OBJFILE "resources/heart.fcm"
 
 #define IDR_STAR_MODEL 103
-IDR_STAR_MODEL OBJFILE "resources/star.obj"
-
-201 RCDATA "resources/MenuBackground.png"
+IDR_STAR_MODEL OBJFILE "resources/star.fcm"

@@ -1,26 +1,19 @@
-#include <windows.h>
 #include <GL/freeglut.h>
 #include <GL/glext.h>
 
-#include <fstream>
 #include <vector>
-#include <memory>
 #include <string>
 #include <math.h>
-#include <algorithm>
 
 #include "utils/draw.h"
 #include "utils/gui.h"
 #include "utils/ModelOBJ.h"
-#include "utils/image.h"
 #include "world/pipe.h"
 #include "world/mountain.h"
 #include "world/cloud.h"
 #include "boosts/coin.h"
 #include "boosts/heart.h"
 #include "boosts/star.h"
-
-using namespace std;
 
 enum State { MENU, PLAYING, GAMEOVER, PAUSED };
 State currentState = MENU;
@@ -32,24 +25,24 @@ const float jumpForce = 0.055f;
 const float cubeSize = 0.4f;
 
 // Objects
-vector<Cloud> clouds;
+std::vector<Cloud> clouds;
 float cloudSpawnTimer = 0.0f;
 
-vector<Mountain> mountains;
+std::vector<Mountain> mountains;
 
-vector<Pipe> pipes;
+std::vector<Pipe> pipes;
 float spawnTimer = 0.0f;
 float spawnInterval = 3.5f;
 
 // Coins data
-vector<Coin> activeCoins;
+std::vector<Coin> activeCoins;
 
 // Hearts data
-vector<Heart> activeHearts;
+std::vector<Heart> activeHearts;
 ModelOBJ heartModel;
 
 // Stars data
-vector<Star> activeStars;
+std::vector<Star> activeStars;
 ModelOBJ starModel;
 
 // Player model
@@ -66,23 +59,44 @@ float currentGap = 0.9f;
 float floorOffset = 0.0f;
 float lastGapY = 0.0f;
 
-GLuint menuBackground;
 
+void getSaveFilePath(char* outPath) {
+    GetModuleFileNameA(NULL, outPath, MAX_PATH);
+
+    char* lastSlash = strrchr(outPath, '\\');
+    if (lastSlash) {
+        strcpy(lastSlash + 1, "highscore.txt");
+    } else {
+        strcpy(outPath, "highscore.txt");
+    }
+}
 
 void saveHighScore() {
-    ofstream outFile("highscore.txt");
-    if (outFile.is_open()) {
-        outFile << highScore;
-        outFile.close();
-        SetFileAttributesA("highscore.txt", FILE_ATTRIBUTE_HIDDEN);
+    char path[MAX_PATH];
+    getSaveFilePath(path);
+
+    SetFileAttributesA(path, FILE_ATTRIBUTE_NORMAL);
+
+    FILE* outFile = fopen(path, "w");
+    if (outFile) {
+        fprintf(outFile, "%d", highScore);
+        fclose(outFile);
+        SetFileAttributesA(path, FILE_ATTRIBUTE_HIDDEN);
     }
 }
 
 void loadHighScore() {
-    ifstream inFile("highscore.txt");
-    if (inFile.is_open()) {
-        inFile >> highScore;
-        inFile.close();
+    char path[MAX_PATH];
+    getSaveFilePath(path);
+
+    FILE* inFile = fopen(path, "r");
+    if (inFile) {
+        if (fscanf(inFile, "%d", &highScore) != 1) {
+            highScore = 0;
+        }
+        fclose(inFile);
+    } else {
+        highScore = 0;
     }
 }
 
@@ -134,12 +148,67 @@ void resetGame() {
     currentState = PLAYING;
 }
 
+void renderMenuScene() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+
+    glTranslatef(0, 0, -7.0f);
+    glRotatef(15, 1, 0, 0);
+    glRotatef(-10, 0, 1, 0);
+
+    if (mountains.empty()) {
+        for(float i = -20.0f; i < 20.0f; i += 8.0f) {
+
+            float h1 = 15.0f;
+            mountains.push_back(Mountain(i, -14.0f + (h1/2), -45.0f,
+                h1, h1 * 1.5f,
+                0.8f, 0.85f, 0.9f,
+                0.0f)); // speed = 0 (statisch)
+
+            float h2 = 10.0f;
+            mountains.push_back(Mountain(i + 4.0f, -9.0f + (h2/2), -30.0f,
+                h2, h2 * 1.3f,
+                0.4f, 0.42f, 0.45f,
+                0.0f));
+
+            float h3 = 6.0f;
+            mountains.push_back(Mountain(i + 2.0f, -8.0f + (h3/2), -15.0f,
+                h3, h3 * 1.2f,
+                0.15f, 0.35f, 0.15f,
+                0.0f));
+        }
+    }
+
+    if (clouds.empty()) {
+        clouds.push_back(Cloud(-5.0f, 3.0f, -20.0f, 3.0f, 1.2f, 0.9f, 0.0f));
+        clouds.push_back(Cloud(2.0f, 2.5f, -25.0f, 2.5f, 1.0f, 0.9f, 0.0f));
+        clouds.push_back(Cloud(6.0f, 3.5f, -18.0f, 3.5f, 1.3f, 0.9f, 0.0f));
+    }
+
+    for (auto& m : mountains)
+        m.draw();
+
+    for (auto& c : clouds)
+        c.draw();
+
+    drawGround(0.0f);
+
+    glPushMatrix();
+        glTranslatef(2.15f, 0.0f, 0.0f);
+        glColor3f(92/255.0f, 62/255.0f, 14/255.0f);
+
+        playerModel.setRotation(0, 90, 0);
+        playerModel.setScale(0.35f);
+        playerModel.draw();
+    glPopMatrix();
+}
+
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
     if (currentState == MENU) {
-        drawMenuBackground();
+        renderMenuScene();
     }
 
     if (currentState == PLAYING || currentState == PAUSED || currentState == GAMEOVER) {
@@ -211,7 +280,7 @@ void display() {
 
 template <typename collectableType, typename OnCollectFn>
 
-void updateCollectibles(vector<collectableType>& items, OnCollectFn onCollect) {
+void updateCollectibles(std::vector<collectableType>& items, OnCollectFn onCollect) {
     for (auto item = items.begin(); item != items.end(); ) {
         item->update(currentSpeed, -1.5f, cubeY);
 
@@ -499,11 +568,6 @@ int main(int argc, char** argv) {
         glMatrixMode(GL_MODELVIEW);
     });
 
-    menuBackground = loadPNGFromResource(201);
-    if (menuBackground == 0) {
-        fprintf(stderr, "Failed to load texture! Check resource ID 201.\n");
-    }
-
     initLighting();
 
     glutKeyboardFunc(keyboard);
@@ -518,4 +582,11 @@ int main(int argc, char** argv) {
     glutMainLoop();
 
     return 0;
+}
+
+extern "C" {
+    int __cdecl _snprintf(char* buffer, size_t count, const char* format, ...) {
+        // Wir brauchen keine echte Funktion, da wir keinen Joystick nutzen
+        return 0;
+    }
 }

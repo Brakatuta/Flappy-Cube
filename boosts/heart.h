@@ -1,7 +1,7 @@
 #ifndef HEART_H
 #define HEART_H
 
-#include "Boost.h"
+#include "boost.h"
 #include "../utils/ModelOBJ.h"
 
 class Heart : public Boost {

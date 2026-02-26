@@ -10,7 +10,6 @@
 #include <GL/freeglut.h>
 #include <GL/glext.h>
 
-#include <fstream>
 #include <vector>
 #include <memory>
 #include <string>
@@ -26,8 +25,6 @@
 #include "boosts/heart.h"
 #include "boosts/star.h"
 
-using namespace std;
-
 // =====================
 //  Game State
 // =====================
@@ -37,13 +34,13 @@ extern State currentState;
 // =====================
 //  Globals
 // =====================
-extern vector<Cloud> clouds;
-extern vector<Mountain> mountains;
-extern vector<Pipe> pipes;
+extern std::vector<Cloud> clouds;
+extern std::vector<Mountain> mountains;
+extern std::vector<Pipe> pipes;
 
-extern vector<Coin> activeCoins;
-extern vector<Heart> activeHearts;
-extern vector<Star> activeStars;
+extern std::vector<Coin> activeCoins;
+extern std::vector<Heart> activeHearts;
+extern std::vector<Star> activeStars;
 
 extern ModelOBJ playerModel;
 extern ModelOBJ heartModel;
@@ -60,8 +57,6 @@ extern float currentGap;
 extern float invincibilityTimer;
 extern float superModeTimer;
 
-extern GLuint menuBackground;
-
 // =====================
 //  Core Functions
 // =====================
@@ -69,6 +64,8 @@ void saveHighScore();
 void loadHighScore();
 
 void resetGame();
+
+void renderMenuScene();
 
 void display();
 void update(int value);

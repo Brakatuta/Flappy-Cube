@@ -1,7 +1,7 @@
 #ifndef STAR_H
 #define STAR_H
 
-#include "Boost.h"
+#include "boost.h"
 #include "../utils/ModelOBJ.h"
 
 class Star : public Boost {

@@ -1,4 +1,6 @@
-​This is **Flappy Cube**.
+# Flappy Cube
+
+This is **Flappy Cube**.
 
 A very small 3D game made with C/C++.
 You might know Flappy Bird — the iconic mobile game? If so, then it should be easy for you to understand what this is.

@@ -1,0 +1,1 @@
+upx --strip-relocs=0 --best --ultra-brute FlappyCube.exe

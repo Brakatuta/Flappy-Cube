@@ -8,5 +8,6 @@ Jump using your Spacebar and avoid crashing into pipes. Occasionally, you will r
 
 Have fun playing!
 
-<img width="1278" height="748" alt="Screenshot 2026-08-09 124739" src="https://github.com/user-attachments/assets/e1066d8b-3ae8-41fc-ba5b-80990e57c86f" />
-<img width="1282" height="748" alt="Screenshot 2026-08-09 124833" src="https://github.com/user-attachments/assets/c953fed0-c5b0-4ad1-8eee-6e6009895959" />
+<img width="1920" height="1080" alt="Shot1" src="https://github.com/user-attachments/assets/69a06ad2-e90b-47fe-bd54-adcbbb50c661" />
+<img width="1920" height="1080" alt="Shot2" src="https://github.com/user-attachments/assets/9b033717-4a16-431f-8796-28da9ef7610e" />
+<img width="1920" height="1080" alt="Shot3" src="https://github.com/user-attachments/assets/0667e7ca-8fd8-4f54-aec4-359b77107b6a" />

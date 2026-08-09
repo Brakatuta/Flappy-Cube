@@ -1,10 +1,10 @@
 ​This is **Flappy Cube**.
 
-A verry small 3D game made with C/C++.
-You might know Flappy Bird - the iconic mobile game?... then it should be easy for you to understand what this is.
+A very small 3D game made with C/C++.
 
-Jump using your Space Button and avoid crashing into pipes.
-Accasionaly you run into boosts like health boost, that give you some advantage.
+You might know Flappy Bird — the iconic mobile game? If so, then it should be easy for you to understand what this is.
+
+Jump using your Spacebar and avoid crashing into pipes. Occasionally, you will run into boosts—like a health boost—that give you an advantage.
 
 Have fun playing!
 
